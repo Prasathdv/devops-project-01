@@ -6,12 +6,12 @@ terraform {
     }
   }
   backend "s3" {
-    key = "aws/ec2-deploy/terraform.tfstate"
+    key = "terraform.tfstate"
   }
 }
 
 provider "aws" {
-  region  = var.region
+  region  = "us-east-2"
   # profile = "terraform"
 }
 
