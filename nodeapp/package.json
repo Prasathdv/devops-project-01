@@ -1,0 +1,29 @@
+{
+  "name": "devops-project-01",
+  "version": "1.0.0",
+  "description": "simple nodejs app",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Prasathdv/devops-project-01.git"
+  },
+  "keywords": [
+    "NodeJs",
+    "Terraform",
+    "Docker",
+    "Github Actions",
+    "DevOps"
+  ],
+  "author": "Prasath DV",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Prasathdv/devops-project-01/issues"
+  },
+  "homepage": "https://github.com/Prasathdv/devops-project-01#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
