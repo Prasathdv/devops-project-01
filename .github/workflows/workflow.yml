@@ -20,6 +20,12 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_wrapper: false
+      - name: Setting up profile
+        run: |-
+          mkdir $HOME/.aws
+          echo [default] >> $HOME/.aws/credentials
+          echo aws_access_key_id = $AWS_ACCESS_KEY_ID >> $HOME/.aws/credentials
+          echo aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY_ID} >> $HOME/.aws/credentials
       - name: Terraform init
         id: init
         run: terraform init -backend-config="bucket=$AWS_TF_STATE_BUCKET_NAME" -backend-config="region=$AWS_REGION" -backend-config="access_key=$AWS_ACCESS_KEY_ID" -backend-config="secret_key=$AWS_SECRET_ACCESS_KEY_ID"
