@@ -37,7 +37,7 @@ jobs:
           -var="region=$AWS_REGION" \
           -var="public_key=$AWS_SSH_KEY_PUBLIC" \
           -var="private_key=$AWS_SSH_KEY_PRIVATE" \
-          -var="key_name=devops_key" \
+          -var="key_name=deployer-key" \
           -out=PLAN
         working-directory: ./terraform
       - name: Terraform Apply
