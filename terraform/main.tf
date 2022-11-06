@@ -2,16 +2,16 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.38.0"
+      version = "~>4.0"
     }
   }
   backend "s3" {
-    key = "terraform.tfstate"
+    key = "aws/ec2-depoy/terraform.tfstate"
   }
 }
 
 provider "aws" {
-  region  = "us-east-2"
+  region  = var.region
   # profile = "terraform"
 }
 
