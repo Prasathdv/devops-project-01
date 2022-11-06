@@ -22,7 +22,7 @@ jobs:
           terraform_wrapper: false
       - name: Terraform init
         id: init
-        run: terraform init -backend-config="bucket=$AWS_TF_STATE_BUCKET_NAME" -backend-config="region=$AWS_REGION"
+        run: terraform init -backend-config="bucket=$AWS_TF_STATE_BUCKET_NAME" -backend-config="region=$AWS_REGION" -backend-config="access_key=$AWS_ACCESS_KEY_ID" -backend-config="secret_key=$AWS_SECRET_ACCESS_KEY_ID"
         working-directory: ./terraform
       - name: Terraform plan
         id: plan
