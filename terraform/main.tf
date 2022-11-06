@@ -42,6 +42,7 @@ resource "aws_security_group" "sg_public" {
   name = "Security group for nodejs server"
 
   egress {
+    description = ""
     cidr_blocks = ["0.0.0.0/0"]
     from_port = 0
     to_port = 0
@@ -49,29 +50,36 @@ resource "aws_security_group" "sg_public" {
     ipv6_cidr_blocks = []
     security_groups = []
     self = false
+    prefix_list_ids = []
   }
   ingress = [
     {
+        description = ""
         cidr_blocks = ["0.0.0.0/0"]
         from_port = 22
         to_port = 22
         protocol = "tcp"
         security_groups = []
         self = false
+        ipv6_cidr_blocks = []
+        prefix_list_ids = []
     },
     {
+        description = ""
         cidr_blocks = ["0.0.0.0/0"]
         from_port = 80
         to_port = 80
         protocol = "tcp"
         security_groups = []
         self = false
+        ipv6_cidr_blocks = []
+        prefix_list_ids = []
     }
   ]
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "ec2 profile"
+  name = "ec2_profile"
   role = "EC2-ECR-AUTH-READONLY"
 }
 
