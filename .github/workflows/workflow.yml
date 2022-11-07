@@ -73,11 +73,6 @@ jobs:
           echo [default] >> $HOME/.aws/credentials
           echo aws_access_key_id=$AWS_ACCESS_KEY_ID >> $HOME/.aws/credentials
           echo aws_secret_access_key=${AWS_SECRET_ACCESS_KEY_ID} >> $HOME/.aws/credentials  
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     role-to-assume: arn:aws:iam::922375583039:role/EC2-ECR-AUTH-READONLY
-      #     aws-region: us-east-2
       
       - name: Login to AWS ECR
         id: login-ecr
@@ -108,24 +103,24 @@ jobs:
         run:  |-
           echo ${{ env.SERVER_PUBLIC_IP }}
       
-      # - name: Deploy Docker image to EC2
-      #   env:
-      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     REPOSITORY: simple-node-app
-      #     IMAGE_TAG: ${{ github.sha }}
-      #     AWS_DEFAULT_REGION: $AWS_REGION
-      #   uses: appleboy/ssh-action@master    
-      #   with:
-      #     host: ${{ env.SERVER_PUBLIC_IP }}
-      #     username: ubuntu
-      #     key: ${{ env.AWS_SSH_KEY_PRIVATE }}
-      #     envs: AWS_SSH_KEY_PRIVATE, REGISTRY, REPOSITORY, IMAGE_TAG, AWS_DEFAULT_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY_ID,AWS_REGION
-      #     script: |-
-      #       sudo apt update
-      #       sudo apt install docker.io -y
-      #       sudo apt install awscli -y
-      #       sudo $(aws ecr get-login --no-include-email --region $AWS_REGION);
-      #       sudo docker stop myappcontainer || true
-      #       sudo docker rm myappcontainer || true
-      #       sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
-      #       sudo docker run -d --name myappcontainer -p 80:8080 $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      - name: Deploy Docker image to EC2
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: simple-node-app
+          IMAGE_TAG: ${{ github.sha }}
+          AWS_DEFAULT_REGION: $AWS_REGION
+        uses: appleboy/ssh-action@master    
+        with:
+          host: ${{ env.SERVER_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ env.AWS_SSH_KEY_PRIVATE }}
+          envs: AWS_SSH_KEY_PRIVATE, REGISTRY, REPOSITORY, IMAGE_TAG, AWS_DEFAULT_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY_ID,AWS_REGION
+          script: |-
+            sudo apt update
+            sudo apt install docker.io -y
+            sudo apt install awscli -y
+            sudo $(aws ecr get-login --no-include-email --region $AWS_REGION);
+            sudo docker stop myappcontainer || true
+            sudo docker rm myappcontainer || true
+            sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            sudo docker run -d --name myappcontainer -p 80:8080 $REGISTRY/$REPOSITORY:$IMAGE_TAG
