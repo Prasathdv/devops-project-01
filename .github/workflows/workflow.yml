@@ -58,7 +58,7 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Set IP environment variable
-        run: echo SERVER_PUBLIC_IP = ${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB.ENV
+        run: echo "SERVER_PUBLIC_IP = ${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}" >> $GITHUB.ENV
       
       - name: Setting up profile
         run: |-
