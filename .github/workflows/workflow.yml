@@ -10,11 +10,12 @@ env:
   AWS_SSH_KEY_PUBLIC : ${{ secrets.AWS_SSH_KEY_PUBLIC }}
   AWS_TF_STATE_BUCKET_NAME : ${{ secrets.AWS_TF_STATE_BUCKET_NAME }}
   AWS_REGION : "us-east-2"
+  SERVER_PUBLIC_IP:
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
     outputs:
-      SERVER_PUBLIC_IP: ${{ steps.setip.outputs.instance_public_ip }}
+      SERVER_PUBLIC_IP: ${{ steps.set-ip.outputs.instance_public_ip }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -52,8 +53,8 @@ jobs:
         run: terraform apply PLAN
         working-directory: ./terraform
       
-      - name: Output public IP
-        id: setip
+      - name: Set output
+        id: set-ip
         run: |-
            echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)"
         working-directory: ./terraform   
@@ -108,7 +109,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: simple-node-app
           IMAGE_TAG: ${{ github.sha }}
-          AWS_DEFAULT_REGION: $AWS_REGION
+          AWS_DEFAULT_REGION: us-east-2
         uses: appleboy/ssh-action@master    
         with:
           host: ${{ env.SERVER_PUBLIC_IP }}
