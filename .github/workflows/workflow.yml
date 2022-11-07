@@ -49,7 +49,9 @@ jobs:
       - name: Output public IP
         id: setip
         run: |-
-          echo "instance_public_ip=$(terraform output instance_public_ip)" >> $GITHUB_OUTPUT    
+#          echo "instance_public_ip=$(terraform output instance_public_ip)" >> $GITHUB_OUTPUT    
+           echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)"
+           echo ${{ instance_public_ip }}      
   deploy-app:
     runs-on: ubuntu-latest
     needs: deploy-infra
