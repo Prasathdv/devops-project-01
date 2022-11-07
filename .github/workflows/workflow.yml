@@ -84,7 +84,11 @@ jobs:
           echo ::set-output name=exit_code::$?
         working-directory: ./nodeapp  
       - name: Docker push image to ECR 
-        if: steps.build.outputs.exit_code == 0   
+        if: steps.build.outputs.exit_code == 0
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: simple-node-app
+          IMAGE_TAG: ${{ github.sha }}   
         run: docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: ./nodeapp  
       - name: Deploy Docker image to EC2
