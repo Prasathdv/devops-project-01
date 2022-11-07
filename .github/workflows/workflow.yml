@@ -85,7 +85,7 @@ jobs:
         working-directory: ./nodeapp  
       - name: Docker push image to ECR 
         if: steps.build.outputs.exit_code == 0   
-          run: docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+        run: docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: ./nodeapp  
       - name: Deploy Docker image to EC2
         env:
