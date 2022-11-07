@@ -66,6 +66,12 @@ jobs:
         uses: actions/checkout@v3
       - name: Set IP env variable
         run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
+      - name: Setting up profile
+        run: |-
+          mkdir $HOME/.aws
+          echo [default] >> $HOME/.aws/credentials
+          echo aws_access_key_id=$AWS_ACCESS_KEY_ID >> $HOME/.aws/credentials
+          echo aws_secret_access_key=$AWS_SECRET_ACCESS_KEY_ID >> $HOME/.aws/credentials
       - name: Login to AWS ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
