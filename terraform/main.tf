@@ -85,6 +85,6 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 }
 
 output "instance_public_ip" {
-  value     = aws_instance.appserver.private_ip
+  value     = aws_instance.appserver.public_ip
   sensitive = true
 }
