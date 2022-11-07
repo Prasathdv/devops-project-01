@@ -100,16 +100,13 @@ jobs:
         run: docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: ./nodeapp  
       
-      - name: Display public IP of EC2 instance
-        run:  |-
-          echo SERVER_PUBLIC_IP
-      
       - name: Deploy Docker image to EC2
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: simple-node-app
           IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: us-east-2
+          SERVER_PUBLIC_IP: ${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}
         uses: appleboy/ssh-action@master    
         with:
           host: ${{ env.SERVER_PUBLIC_IP }}
