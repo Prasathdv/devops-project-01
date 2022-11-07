@@ -109,7 +109,7 @@ jobs:
           SERVER_PUBLIC_IP: ${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}
         uses: appleboy/ssh-action@master    
         with:
-          host: $SERVER_PUBLIC_IP
+          host: ${{ env.SERVER_PUBLIC_IP }}
           username: ubuntu
           key: ${{ env.AWS_SSH_KEY_PRIVATE }}
           envs: AWS_SSH_KEY_PRIVATE, REGISTRY, REPOSITORY, IMAGE_TAG, AWS_DEFAULT_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY_ID, AWS_REGION, SERVER_PUBLIC_IP
