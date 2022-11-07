@@ -99,7 +99,7 @@ jobs:
       
       - name: Display public IP of EC2 instance
         run:  |-
-          echo ${{ SERVER_PUBLIC_IP }}
+          echo ${{ env.SERVER_PUBLIC_IP }}
       
       # - name: Deploy Docker image to EC2
       #   env:
