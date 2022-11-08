@@ -96,15 +96,15 @@ jobs:
       - name: Deploy docker image to EC2
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: example-node-app
+          REPOSITORY: simple-node-app
           IMAGE_TAG: ${{ github.sha }}
-          AWS_DEFAULT_REGION: us-east-1
+          AWS_DEFAULT_REGION: us-east-2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ env.SERVER_PUBLIC_IP }}
+          host: ${{ env.SERVER_PUBLIC_DNS }}
           username: ubuntu
-          key: ${{ env.PRIVATE_SSH_KEY }}
-          envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
+          key: ${{ env.AWS_SSH_KEY_PRIVATE }}
+          envs: AWS_SSH_KEY_PRIVATE,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY_ID,AWS_DEFAULT_REGION,AWS_REGION
           script: |-
             sudo apt update
             sudo apt install docker.io -y
