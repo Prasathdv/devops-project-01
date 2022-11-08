@@ -11,11 +11,13 @@ env:
   AWS_TF_STATE_BUCKET_NAME : ${{ secrets.AWS_TF_STATE_BUCKET_NAME }}
   AWS_REGION : "us-east-2"
   SERVER_PUBLIC_IP:
+  SERVER_PUBLIC_DNS:
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
     outputs:
       SERVER_PUBLIC_IP: ${{ steps.set-ip.outputs.instance_public_ip }}
+      SERVER_PUBLIC_DNS: ${{ steps.set-ip.outputs.instance_public_dns }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -57,6 +59,7 @@ jobs:
         id: set-ip
         run: |-
            echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)"
+           echo "::set-output name=instance_public_dns::$(terraform output instance_public_dns)"
         working-directory: ./terraform   
   deploy-app:
     runs-on: ubuntu-latest
@@ -65,7 +68,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Set IP env variable
-        run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
+        run: |-
+          echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
+          echo SERVER_PUBLIC_DNS=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_DNS }} >> $GITHUB_ENV
       - name: Setting up profile
         run: |-
           mkdir $HOME/.aws
@@ -84,6 +89,8 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: ./nodeapp
+    
+          
       - name: Deploy docker image to EC2
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
