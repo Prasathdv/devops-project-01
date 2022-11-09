@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+      - changesv1
+      - changesv2
 env:
   AWS_ACCESS_KEY_ID : ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY_ID : ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
@@ -11,11 +13,13 @@ env:
   AWS_TF_STATE_BUCKET_NAME : ${{ secrets.AWS_TF_STATE_BUCKET_NAME }}
   AWS_REGION : "us-east-2"
   SERVER_PUBLIC_IP:
+  SERVER_PUBLIC_DNS:
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
     outputs:
       SERVER_PUBLIC_IP: ${{ steps.set-ip.outputs.instance_public_ip }}
+      SERVER_PUBLIC_DNS: ${{ steps.set-ip.outputs.instance_public_dns }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -57,6 +61,7 @@ jobs:
         id: set-ip
         run: |-
            echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)"
+           echo "::set-output name=instance_public_dns::$(terraform output instance_public_dns)"
         working-directory: ./terraform   
   deploy-app:
     runs-on: ubuntu-latest
@@ -64,60 +69,47 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      
-      - name: Set IP environment variable
-        run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB.ENV
-      
+      - name: Set IP env variable
+        run: |-
+          echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
+          echo SERVER_PUBLIC_DNS=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_DNS }} >> $GITHUB_ENV
       - name: Setting up profile
         run: |-
           mkdir $HOME/.aws
           echo [default] >> $HOME/.aws/credentials
           echo aws_access_key_id=$AWS_ACCESS_KEY_ID >> $HOME/.aws/credentials
-          echo aws_secret_access_key=${AWS_SECRET_ACCESS_KEY_ID} >> $HOME/.aws/credentials  
-      
+          echo aws_secret_access_key=$AWS_SECRET_ACCESS_KEY_ID >> $HOME/.aws/credentials
       - name: Login to AWS ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      
-      - name: Build a Docker image    
-        id: build        
+      - name: Build, push docker image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: simple-node-app
           IMAGE_TAG: ${{ github.sha }}
         run: |-
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker image ls
-          echo ::set-output name=exit_code::$?
-        working-directory: ./nodeapp  
-      
-      - name: Docker push image to ECR 
-        if: steps.build.outputs.exit_code == 0
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: simple-node-app
-          IMAGE_TAG: ${{ github.sha }}   
-        run: docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-        working-directory: ./nodeapp  
-      
-      - name: Deploy Docker image to EC2
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+        working-directory: ./nodeapp
+    
+          
+      - name: Deploy docker image to EC2
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: simple-node-app
           IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: us-east-2
-          SERVER_PUBLIC_IP: ${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}
-        uses: appleboy/ssh-action@master    
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ env.SERVER_PUBLIC_IP }}
+          host: ${{ env.SERVER_PUBLIC_DNS }}
           username: ubuntu
           key: ${{ env.AWS_SSH_KEY_PRIVATE }}
-          envs: AWS_SSH_KEY_PRIVATE, REGISTRY, REPOSITORY, IMAGE_TAG, AWS_DEFAULT_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY_ID, AWS_REGION, SERVER_PUBLIC_IP
+          envs: AWS_SSH_KEY_PRIVATE,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY_ID,AWS_DEFAULT_REGION,AWS_REGION
           script: |-
             sudo apt update
             sudo apt install docker.io -y
             sudo apt install awscli -y
-            sudo $(aws ecr get-login --no-include-email --region $AWS_REGION);
+            sudo $(aws ecr get-login --no-include-email --region us-east-2);
             sudo docker stop myappcontainer || true
             sudo docker rm myappcontainer || true
             sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG

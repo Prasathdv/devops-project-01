@@ -88,3 +88,7 @@ output "instance_public_ip" {
   value     = aws_instance.appserver.public_ip
   sensitive = true
 }
+output "instance_public_dns" {
+  value     = aws_instance.appserver.public_dns
+  sensitive = true
+}
